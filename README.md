@@ -12,7 +12,7 @@ This repo serves to reproduce the results from the publication: H-NGPCA: Hierarc
 
 Get started by downloading the latest release:
 
-- [Download the latest release](https://github.com/NicoMigenda/HNGPCA-Clustering/archive/refs/tags/HNGPCA.zip)
+- [Download the latest release](https://github.com/NicoMigenda/HNGPCA-Clustering/releases/tag/v1.0)
 - Clone the repo: `git clone https://github.com/NicoMigenda/HNGPCA-Clustering.git`
 
 ## What's included
