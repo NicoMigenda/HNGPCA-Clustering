@@ -3,20 +3,26 @@ function obj = drawupdate(obj)
 % DRAWING FUNCTION                                                        %
 %-------------------------------------------------------------------------%
 
+% Array that will be filled with the indices of all units that are plotted
 units_to_plot = [];
 % Loop through the tree and find the lowest level of fully developed units
 % in each branch, which are then used to plot.
 for k = 1 : obj.numberUnits
+    % Delete current image handles from previous draw
     if obj.units{k}.image_handle ~= 0
         delete(obj.units{k}.image_handle);
         delete(obj.units{k}.dim_handle);
     end
+    % Only plot the last fully developed unit of each branch (Parent of an
+    % unborn child)
     if obj.units{k}.child_idx == 0
         units_to_plot(length(units_to_plot)+1) = obj.units{k}.parent_idx;
     end
 end
+% Remove duplicates, if appear
 units_to_plot = unique(units_to_plot);
 
+% Plot unit by unit
 for k = units_to_plot
     % Form the upper left 2x2 submatrix of the covariance matrix from the eigenvalues and eigenvectors
     sub_matrix = obj.units{k}.weight(1:2,:) * (obj.units{k}.eigenvalue .* obj.units{k}.weight(1:2,:)');
@@ -40,4 +46,5 @@ for k = units_to_plot
     obj.units{k}.dim_handle = text(obj.units{k}.center(1),obj.units{k}.center(2), sprintf('%u(%u)', k,obj.units{k}.m), 'Color', 'r','FontSize',14);
 end
 
-pause(0.001)
+% Force the to plot now
+drawnow

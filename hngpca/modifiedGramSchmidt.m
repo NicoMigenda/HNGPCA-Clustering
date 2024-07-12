@@ -1,4 +1,4 @@
-function A_new = mgsog(A)
+function A_new = modifiedGramSchmidt(A)
 [n,m] = size(A); 
 
 % Maximum number of iterations to reach convergence of the newly added
@@ -29,17 +29,3 @@ end
 
 % Add the new dimension to the eigenvector matrix
 A_new = [A, new_dim];
-
-%% Debugging part - Check if the newly added vector is actually orthogonal to the existing eigenvectors
-% Check if columns are orthogonal
-orthogonal_check = abs(A_new' * A_new - eye(size(A_new, 2))) < tolerance;
-
-% Check if columns have unit norm
-norm_check = abs(arrayfun(@(idx) norm(A_new(:, idx)) - 1, 1:size(A_new, 2))) < tolerance;
-
-% Check if all conditions are satisfied
-is_orthonormal = all(orthogonal_check(:)) && all(norm_check);
-
-if ~is_orthonormal
-    disp('The new weights are not orthonormal.');
-end

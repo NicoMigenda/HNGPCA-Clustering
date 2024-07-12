@@ -1,7 +1,8 @@
 function obj = init(obj)
+    % Root unit + 2 unborn children
     obj.numberUnits = 3;
     obj.units = cell(obj.numberUnits,1);
-    obj.split_counter = obj.split_counter_init;
+    obj.zeta = obj.zeta_init;
     for k = 1 : 3
         %Unit specific Output Dimension, for 2d it remains 2, otherwise
         %adaptivly adjusted 
@@ -39,45 +40,53 @@ function obj = init(obj)
         end
         obj.units{k}.center = obj.units{k}.center';
     
-        % first m principal axes (weights)
-        % orhonormal (as needed by distance measure)        
+        % First m principal axes (weights)
+        % Orhonormal (as needed by distance measure)        
         obj.units{k}.weight = orth(rand(obj.dataDimensionality, obj.units{k}.m));
     
-        % first m eigenvalues                                
+        % First m eigenvalues                                
         obj.units{k}.eigenvalue = repmat(obj.lambda, obj.units{k}.m, 1);
     
-        % residual variance in the minor (m -n) eigendirections
-        obj.units{k}.sigma = obj.lambda;
+        % Residual variance in the minor (m -n) eigendirections
+        obj.units{k}.sigma_sqr = obj.lambda;
+
+        % Total variance
         obj.units{k}.totalVariance = sum(obj.units{k}.eigenvalue);
     
-        % deviation between input and center
+        % Deviation between input and center
         obj.units{k}.x_c = zeros(obj.dataDimensionality, 1);
 
         % Unit specific low pass values for intra, inter and quality
         % Initial values doesnt matter
-        obj.units{k}.intra = 10;
-        obj.units{k}.inter = 10;
+        obj.units{k}.intra_bar = 1;
+        obj.units{k}.inter_bar = 1;
         obj.units{k}.quality= 1;
         obj.units{k}.quality_measure = 0;
     
-        % unit output (activation) for input x_c
+        % Unit output (activation) for input x_c
         obj.units{k}.y = zeros(obj.units{k}.m, 1);
+        
+        % Number of update steps before the unit dimensionality can be
+        % changed again
         obj.units{k}.protect = obj.protect;
     
-        % unit activity
-        obj.units{k}.apriori = 1;
+        % Unit activity (pi) between all units of U_b 
+        obj.units{k}.pi = 1;
+        % Unit activity (a) between the unit and its sibling unit
         obj.units{k}.activity = 1;
     
-        % unit matching measure
-        obj.units{k}.y_bar = obj.lambda^2 * ones(obj.units{k}.m, 1);
+        % Unit matching measure
+        obj.units{k}.eta_bar = obj.lambda^2 * ones(obj.units{k}.m, 1);
         obj.units{k}.l_bar = repmat(obj.lambda, obj.units{k}.m, 1);
-        obj.units{k}.mt = obj.units{k}.y_bar + obj.units{k}.l_bar;
+        obj.units{k}.gamma_bar = obj.units{k}.eta_bar + obj.units{k}.l_bar;
     
         % Learning rate 
         obj.units{k}.learningRate = obj.learningRate;
-    
-        obj.units{k}.distance = 0;
 
+        % Unit distance, updated according to equation 4 or 5
+        obj.units{k}.distance = 0;
+        
+        % Image handles for plots
         obj.units{k}.image_handle = 0;
         obj.units{k}.dim_handle = 0;
     end

@@ -1,30 +1,24 @@
-import time
 import warnings
 import os
 import scipy.io
-
 import numpy as np
-import matplotlib.pyplot as plt
-
 from csi import csi
 import concurrent.futures
 from sklearn import cluster, datasets, mixture
 from sklearn.neighbors import kneighbors_graph
 from sklearn.preprocessing import StandardScaler
-from pyclustering.cluster import cluster_visualizer;
 from pyclustering.cluster.cure import cure;
-from pyclustering.cluster.clique import clique, clique_visualizer
+from pyclustering.cluster.clique import clique
 from sklearn.metrics.cluster import normalized_mutual_info_score
 import scipy.io
-from itertools import cycle, islice
 import warnings
 warnings.filterwarnings("ignore")
-import csv
 import pandas as pd 
 import datetime
 
 numIterations = 26
 filename = "./results/" + str(datetime.datetime.now()).replace(":", "-").split(".")[0] + ".xlsx"
+
 # ============
 # Load data sets
 # ============
@@ -33,14 +27,16 @@ datasets = []
 dataset_names = []
 files = [item for item in os.listdir(directory) if os.path.isfile(os.path.join(directory, item))]
 
-for i, file in enumerate(files):  
+index = 0
+for file in files:  
     if os.fsdecode(file).endswith(".mat"):
         datasets.append(scipy.io.loadmat(os.path.join(os.fsdecode(directory), os.fsdecode(file))))
-        f = open(os.path.join(os.fsdecode(directory), "labels/", os.fsdecode(file).split(".")[0], "-label.pa").replace("\\",""), "r")
+        f = open(os.path.join(os.fsdecode(directory), os.fsdecode(file).split(".")[0], "-label.pa").replace("\\",""), "r")
         labels = f.read()
-        datasets[i]["dataset"] = os.fsdecode(file).split("_")[0].split(".")[0]
-        datasets[i]["labels"] = list(filter(None, labels.splitlines()))
+        datasets[index]["dataset"] = os.fsdecode(file).split("_")[0].split(".")[0]
+        datasets[index]["labels"] = list(filter(None, labels.splitlines()))
         dataset_names.append(os.fsdecode(file).split("_")[0].split(".")[0])
+        index += 1
 
 # ============
 # Set up cluster parameters
@@ -138,7 +134,6 @@ for j in range(numIterations):
     np.random.seed(j)
     for i_dataset, dataset in enumerate(datasets):
         # update parameters with dataset-specific values
-        
         X = dataset["data"]
         params.update({'n_clusters': dataset["gt"].shape[0]})
 
@@ -152,75 +147,55 @@ for j in range(numIterations):
         # connectivity matrix for structured Ward
         connectivity = kneighbors_graph(
             X, n_neighbors=params['n_neighbors_ward'], include_self=False)
+        
         # make connectivity symmetric
         connectivity_ward = 0.5 * (connectivity + connectivity.T)
 
         # connectivity matrix for structured Ward
         connectivity = kneighbors_graph(
             X, n_neighbors=params['n_neighbors_agglomorative'], include_self=False)
+        
         # make connectivity symmetric
         connectivity_agglomorative = 0.5 * (connectivity + connectivity.T)
 
         # ============
         # Create cluster objects
         # ============
-        #
         cure_instance = cure(X, params['n_clusters'])
-        # 
         clique_instance = clique(X, params['interval'], params['threshold'])
-        # No Params
         two_means = cluster.MiniBatchKMeans(n_clusters=params['n_clusters'], random_state=j)
-        # 'damping': .95, 'preference': -200
         affinity_propagation = cluster.AffinityPropagation(damping=params['damping'], preference=params['preference'], random_state=j)
-        # 'quantile': .05
         ms = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True)
-        # No Parms
         spectral = cluster.SpectralClustering(
             n_clusters=params['n_clusters'], eigen_solver='arpack',
-            affinity="nearest_neighbors", random_state=j)
-        # 'n_neighbors': 10,
+            affinity="nearest_neighbors", random_state=j) 
         ward = cluster.AgglomerativeClustering(
             n_clusters=params['n_clusters'], linkage='ward',
             connectivity=connectivity_ward)
-        # 'n_neighbors': 500 works okaish
         average_linkage = cluster.AgglomerativeClustering(
             linkage="average", metric="cityblock",
             n_clusters=params['n_clusters'], connectivity=connectivity_agglomorative)
-        # 'eps': .025 - 0.75 aber nicht zufriedenstellend
         dbscan = cluster.DBSCAN(eps=params['eps'])
-        # No parameters
         birch = cluster.Birch(n_clusters=None)
-        # No parameters
         gmm = mixture.GaussianMixture(
             n_components=params['n_clusters'], covariance_type='full')
 
         clustering_algorithms = (
-            #Fixed
             ('Cure', cure_instance),
-            #Dynamic - limited
             ('Clique', clique_instance),
-            #Fixed
             ('MiniBatchKMeans', two_means),
-            #Dynamic - limited
             ('AffinityPropagation', affinity_propagation),
-            #Dynamic - limited
             ('MeanShift', ms),
-            #Fixed
             ('SpectralClustering', spectral),
-            #Fixed
             ('Ward', ward),
-            #Fixed
             ('AgglomerativeClustering', average_linkage),
-            #Dynamic
             ('DBSCAN', dbscan),
-            #Dynamic
             ('Birch', birch),
-            #Fixed
             ('GaussianMixture', gmm),
         )
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Assuming 'datasets' is the list of datasets you want to process
+            
             futures = {executor.submit(process, name, algorithm, dataset): name for name, algorithm in clustering_algorithms}
 
             for future in concurrent.futures.as_completed(futures):

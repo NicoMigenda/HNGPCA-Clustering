@@ -21,7 +21,6 @@ My = sparse(idx,y,1,n,k,n);
 Pxy = nonzeros(Mx'*My/n); %joint distribution of x and y
 Hxy = -dot(Pxy,log2(Pxy));
 
-
 % hacking, to elimative the 0log0 issue
 Px = nonzeros(mean(Mx,1));
 Py = nonzeros(mean(My,1));

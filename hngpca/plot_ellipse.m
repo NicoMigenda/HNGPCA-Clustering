@@ -17,7 +17,7 @@ Theta = [0:0.5:360]' .* DEG2RAD;
 X     = norm(MajorAxis) .* cos(Theta);
 Y     = norm(MinorAxis) .* sin(Theta);
 
-% Rotationsmatrix 
+% Rotationmatrix 
 NX    = Pos(1) + cos(PA).*X - sin(PA).*Y;
 NY    = Pos(2) + sin(PA).*X + cos(PA).*Y;
 

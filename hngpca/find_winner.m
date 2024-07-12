@@ -1,16 +1,20 @@
 function unit  = find_winner(x, unit, potentialFunction, dataDimensionality)
 
+    % Distance between data point and unit center
     unit.x_c = x - unit.center;
+    % Project centered input onto eigenvectors
     unit.y   = unit.weight' * unit.x_c;
 
-    %% Basisterm that is always considered. For m < n the reconstruction error is added.
+    %% Basisterm that is always considered. 
     % Equation 4
     basisTerm = unit.y' * (unit.y ./ unit.eigenvalue);
+    % For m < n the reconstruction error is added
     if unit.m < dataDimensionality
-        lambda_rest = unit.sigma / (dataDimensionality - unit.m);
-        if( lambda_rest <= eps )
+        lambda_rest = unit.sigma_sqr / (dataDimensionality - unit.m);
+        if(lambda_rest <= eps)
             lambda_rest = eps;
         end  
+        % Equation 4 - additive term for m < n
         basisTerm = basisTerm + (1 ./ lambda_rest) * (unit.x_c' * unit.x_c - unit.y' * unit.y);
     end
     

@@ -5,7 +5,7 @@ classdef HNGPCA
                                     % Allowed values: "H", "N" - We refer to our paper
                                     % for an explanation
         learningRate      = 0.99    % Defines the initial learning rate for all units. 
-        psi               = 1.02    % Defines the threshold of how much the unborn units
+        psi               = 0.95    % Defines the threshold of how much the unborn units
                                     % need to outperform their parent unit 
         mu                = 0.005   % Low pass filter
         lambda            = 1       % Initial eigenvalue
@@ -13,6 +13,7 @@ classdef HNGPCA
         protect           = 50      % Number of update cycles before the dimensionality
                                     % can be adjusted. Decreased for each unit individually
         iterations        = 25000   % Sets the number of update cycles, one data point per iteration
+        zeta_init         = 100     % Initial value of number of update cycles between split operations
         % Allocation of variables that are not subject to be set prior the training
         units                       % An array of local PCA units
         dataDimensionality          % Data dimensionality set to the dimensionality of input data
@@ -20,17 +21,12 @@ classdef HNGPCA
         data                        % Data
         candidates        = 2       % The index of the first initial unborn child unit   
         numberUnits                 % Defines the number of units to be initialized - Always 1 root and 2 children initially
-        split_counter     
-        split_counter_init = 100
-        quality_measure       
-        intra_measure
-        inter_measure
-        numberUnits_history   = 1   % Tracks how many units currently exist, only used for plotting
+        zeta                        % Number of update cycles between split operations
+        quality_measure             % Quality measure of the set U_b  
         centroidIndex               % Validation: Centroid Index
         nmi                         % Validation: Normalized Mutual information
-        y_pred
-        ax                          % Plot handle        
-        activity       
+        y_pred                      % Array of labels that show which data point belongs to which cluster
+        ax                          % Plot handle             
     end
     
     methods
@@ -46,8 +42,8 @@ classdef HNGPCA
                         obj.potentialFunction = property_value;
                     case 'learningrate'
                         obj.learningRate = property_value;
-                    case 'split_counter_init'
-                        obj.split_counter_init = property_value;
+                    case 'zeta_init'
+                        obj.zeta_init = property_value;
                     case 'psi'
                         obj.psi = property_value;
                     case 'mu'
@@ -127,15 +123,6 @@ classdef HNGPCA
             obj = drawupdate(obj);
         end
 
-        %-------
-        % Draw number of units over time
-        %-------
-        function obj = draw_numberUnits(obj)
-            figure;
-            ylabel("Number of units")
-            xlabel("Datapoints")
-            plot(obj.numberUnits_history)
-        end
         %-------
         % Centroid Index Measure
         %-------
