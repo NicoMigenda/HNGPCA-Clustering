@@ -7,14 +7,13 @@ This repo serves to reproduce the results from the publication: H-NGPCA: Hierarc
 - [What's included](#whats-included)
 - [Getting Started](#getting-started)
 - [Creators](#creators)
-- [Visualizations](#visualizations)
 
 ## Quick start
 
 Get started by downloading the latest release:
 
-- [Download the latest release](https://github.com/NicoMigenda/NGPCA-Clustering/archive/refs/tags/NGPCA.zip)
-- Clone the repo: `git clone https://github.com/NicoMigenda/NGPCA-Clustering.git`
+- [Download the latest release](https://github.com/NicoMigenda/HNGPCA-Clustering/archive/refs/tags/HNGPCA.zip)
+- Clone the repo: `git clone https://github.com/NicoMigenda/HNGPCA-Clustering.git`
 
 ## What's included
 
@@ -24,30 +23,37 @@ Within the download you'll find the following directories and files:
   <summary>Download contents</summary>
 
   ```text
-    |-- Example_dynamic.m
-    |-- Example_dynamic.mlx
-    |-- Example_stationary.m
-    |-- Example_stationary.mlx
+    |-- Example.m
+    |-- LICENSE
     |-- README.md
-    |-- Results
-    |   `-- gif
-    |       |-- dynamic.gif
-    |       `-- s1.gif
     |-- data
-    |   |-- rls.mat
-    |   |-- s1.mat
-    |   `-- vortex.m
-    `-- ngpca
-        |-- NGPCA.m
-        |-- drawunits.m
+    |   |-- __init__.py
+    |   |-- s1-label.pa
+    |   `-- s1.mat
+    |-- examples
+    |   |-- __init__.py
+    |   |-- __pycache__
+    |   |   `-- csi.cpython-310.pyc
+    |   |-- benchmark_competing_algorithms.py
+    |   |-- csi.py
+    |   |-- results
+    |   `-- sample_size.m
+    `-- hngpca
+        |-- HNGPCA.asv
+        |-- HNGPCA.m
+        |-- csi.m
+        |-- drawupdate.m
         |-- eforrlsa.m
+        |-- find_winner.m
         |-- init.m
+        |-- modifiedGramSchmidt.m
         |-- normalizedmi.m
         |-- plot_ellipse.m
-        |-- potentialFunction.m
-        |-- update.m
-        |-- validate_CI.m
-        `-- validate_NMI_DU.m
+        |-- pred.m
+        |-- unit_dim.m
+        |-- unit_learningrate.m
+        |-- unit_split.m
+        `-- update.m
 
   ```
 </details>
@@ -56,22 +62,15 @@ Within the download you'll find the following directories and files:
 
 The latest release contains all files needed to directly run the algorithm:
 
-1 Open either `Example_dynamic.m` or `Example_stationary.m` in Matlab or alternativly use the provided live script versions (.mlx) \
-2. Running the scripts will automatically perform NGPCA-Clustering on the s1 or ring-line-square + vortex data set or with standard settings
+1 Open `Example.m` in Matlab \
+2. Running the scripts will automatically perform H-NGPCA-Clustering on the s1 data set with standard settings
 
 Optional:
 
 3. Change default settings or add optional parameters to the ngpca object creation or for the training process
 4. Train the model directly on a full data set using the `fit_multiple()` function or build your own training loops with `fit_single()`
 5. Visualize the clustering results with the `draw()` function
-6. Calculate validation metrics (CI, NMI, DU) by providing ground thruth and cluster shape information
-
-## Visualizations
-The following visualizations represent the learning process on selected data sets of the standard clustering benchmark database. For all data sets the default settings are used.
-### Stationary example: Data set S1
-![s1](https://github.com/NicoMigenda/NGPCA-Clustering/blob/main/Results/gif/s1.gif)
-### Non-Starionary example: Ring-Line-Square and Vortex
-![dynamic](https://github.com/NicoMigenda/NGPCA-Clustering/blob/main/Results/gif/dynamic.gif)
+6. Calculate validation metrics (CI, NMI) by providing ground thruth and cluster shape information
 
 ## Creators
 
