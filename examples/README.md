@@ -1,4 +1,4 @@
-<h3 align="center">xamples</h3>
+<h3 align="center">Examples</h3>
 
 ## Sample_size 
 Power analysis to dertmine the sample size used in our benchmarks.
