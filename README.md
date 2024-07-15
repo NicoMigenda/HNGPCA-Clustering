@@ -62,8 +62,8 @@ Within the download you'll find the following directories and files:
 
 The latest release contains all files needed to directly run the algorithm:
 
-1 Open `Example.m` in Matlab \
-2. Running the scripts will automatically perform H-NGPCA-Clustering on the s1 data set with standard settings
+1 Open `Example_stationary.m` or `Example_dynamic.m` in Matlab \
+2. Running the scripts will automatically perform H-NGPCA-Clustering on the s1 or rls data set with standard settings
 
 Optional:
 
