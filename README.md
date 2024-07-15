@@ -23,17 +23,19 @@ Within the download you'll find the following directories and files:
   <summary>Download contents</summary>
 
   ```text
-    |-- Example.m
+    |-- Example_dynamic.m
+    |-- Example_stationary.m
     |-- LICENSE
     |-- README.md
     |-- data
+    |   |-- README.md
     |   |-- __init__.py
+    |   |-- rls.mat
     |   |-- s1-label.pa
     |   `-- s1.mat
     |-- examples
+    |   |-- README.md
     |   |-- __init__.py
-    |   |-- __pycache__
-    |   |   `-- csi.cpython-310.pyc
     |   |-- benchmark_competing_algorithms.py
     |   |-- csi.py
     |   |-- results
@@ -54,6 +56,7 @@ Within the download you'll find the following directories and files:
         |-- unit_learningrate.m
         |-- unit_split.m
         `-- update.m
+
 
   ```
 </details>
