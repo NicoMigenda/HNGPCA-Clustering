@@ -73,8 +73,8 @@ function obj = update(obj)
         activity_loser = obj.units{obj.units{k}.sibling}.activity * (1 - obj.mu);
         
         % Normalize activities
-        obj.units{k}.activity = (2 * activity_winner) / (activity_winner + activity_loser);
-        obj.units{obj.units{k}.sibling}.activity = (2 * activity_loser) / (activity_winner + activity_loser);
+        obj.units{k}.activity = activity_winner / (activity_winner + activity_loser);
+        obj.units{obj.units{k}.sibling}.activity = activity_loser / (activity_winner + activity_loser);
 
         % Continue with the parent in next loop
         k = obj.units{k}.parent_idx;

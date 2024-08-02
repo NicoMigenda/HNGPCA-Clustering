@@ -8,19 +8,19 @@ clear variables
 close all
 addpath('hngpca', 'data');
 % Reproducability
-rng(0)
+rng(2)
 
 %% Create the H-NGPCA object
 % Parameters - Not case sensitive
 % Name                - Range     - Default - Description
 % "potentialfunction" - "H", "N"  - "H"     - Defines the potential function used during the ranking process
 % "learningrate"      - [0,1]     - 0.99    - Defines the initial learning rate for all units
-% "psi"               - [0,1]     - 0.98    - Defines the % the children need to be better than the parent
+% "psi"               - [0,1]     - 0.95    - Defines the % the children needs to be better than the respect parent to split
 % "mu"                - [0,1]     - 0.005   - Low pass filter
 % "dimthreshold"      - [0,1]     - 0.99    - Defines the % of variance that has to be maintained
 % "protect"           - >=1       - 50      - Unit specific number of update cycles before the dimensionality can be updated
 % "zeta_init"         - >=1       - 100     - Initial value of number of update cycles between split operations
-hngpca = HNGPCA();
+hngpca = HNGPCA("psi", 0.92);
 
 %% Load data - The provided .mat files contain:
 % The example data set (S1) is taken from https://cs.joensuu.fi/sipu/datasets/
@@ -36,7 +36,7 @@ load('s1.mat','data','gt','label','eigenvalues','eigenvectors');
 
 % Init the root unit and the 2 unborn children. Optionally set number of
 % iterations
-hngpca = init_units(hngpca, data, 'iterations', 35000);
+hngpca = init_units(hngpca, data, 'iterations', 37500);
 
 % Train the hngpca network
 hngpca = fit_multiple(hngpca, data);
