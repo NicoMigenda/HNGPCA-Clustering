@@ -53,7 +53,7 @@ function obj = update(obj)
             obj.units{k}.totalVariance = sum(obj.units{k}.eigenvalue) + obj.units{k}.sigma_sqrt;
         end
 
-        % Update unit dimensionality
+        % Update unit dimensionality, only when data dimensionality is > 2
          if obj.dataDimensionality > 2 
              if obj.units{k}.protect == 0
                 obj.units{k} = unit_dim(obj.units{k}, obj.dimThreshold, obj.dataDimensionality, obj.protect);
@@ -87,6 +87,7 @@ function obj = update(obj)
     % Intra for winner units and inter for looser units - equation 16 + 17
     % Further, update the tree wide activities (pi), in contrast to
     % the only locally used activities
+    % Pi normalization happes later to save computational time
     for i = obj.candidates
         k = obj.units{i}.parent_idx;
         if i == winner_unit || i+1 == winner_unit
@@ -95,20 +96,19 @@ function obj = update(obj)
             obj.units{k}.pi = obj.units{k}.pi * (1 - obj.mu) + obj.mu;
             % Update Winner Unit 
             obj.units{winner_unit}.intra_bar = obj.units{winner_unit}.intra_bar * (1 - obj.mu) + obj.mu * obj.units{winner_unit}.distance;
-            obj.units{winner_unit}.pi = obj.units{winner_unit}.pi * (1 - obj.mu) + obj.mu;
             % Update Winner sibling
             sibling = obj.units{winner_unit}.sibling;
             obj.units{sibling}.inter_bar = obj.units{sibling}.inter_bar * (1 - obj.mu) + obj.mu * obj.units{sibling}.distance;
-            obj.units{sibling}.pi = obj.units{sibling}.pi * (1 - obj.mu);
             continue;
         end
+        % Update loser parent
         obj.units{k}.inter_bar = obj.units{k}.inter_bar * (1 - obj.mu) + obj.mu * obj.units{k}.distance;
         obj.units{k}.pi = obj.units{k}.pi * (1 - obj.mu);
+        % Update loser unit
         obj.units{i}.inter_bar = obj.units{i}.inter_bar * (1 - obj.mu) + obj.mu * obj.units{i}.distance;
-        obj.units{i}.pi = obj.units{i}.pi * (1 - obj.mu);
+        % Update loser unit parent
         sibling = obj.units{i}.sibling;    
         obj.units{sibling}.inter_bar = obj.units{sibling}.inter_bar * (1 - obj.mu) + obj.mu * obj.units{sibling}.distance;
-        obj.units{sibling}.pi = obj.units{sibling}.pi * (1 - obj.mu);
     end
 
 %-------------------------------------------------------------------------%
@@ -132,30 +132,40 @@ function obj = update(obj)
     % Normalize pi
     normalized_pi = pi / pi_sum;
 
-    % Update pi values in units and intra and inter measure
-    for i = obj.candidates
-        j = obj.units{i}.parent_idx;
-        intra_measures_bar(j) = normalized_pi(j) * obj.units{j}.intra_bar;
-        inter_measures_bar(j) = normalized_pi(j) * obj.units{j}.inter_bar;
-        obj.units{j}.pi = normalized_pi(j);
-    end
+    % Write all intra values into an array for easier processing - used for
+    % quality measure of U_b
+    intra_measures_bar(parent_indices) = cellfun(@(unit) unit.intra_bar, obj.units(parent_indices));
+
+    % Write all inter values into an array for easier processing - used for
+    % quality measure of U_b
+    inter_measures_bar(parent_indices) = cellfun(@(unit) unit.inter_bar, obj.units(parent_indices));
     
     % Always replace 1 parent unit by its unborn children
     for i = obj.candidates
+        % Get parent index
         j = obj.units{i}.parent_idx;
+        % Set unit pi variable to noramlized pi
+        obj.units{j}.pi = normalized_pi(j);
+        % Make local copies of the U_b distances to always replace 1 by its
+        % unborn children
         local_inter_measure = inter_measures_bar;
         local_intra_measure = intra_measures_bar;
+        % Sibling index
         sibling = obj.units{i}.sibling;
 
         % Replace the j-th parent by its two unborn child units. equation
         % 18
-        local_intra_measure(j) = obj.units{j}.pi * (obj.units{i}.activity*obj.units{i}.intra_bar + obj.units{sibling}.activity*obj.units{sibling}.intra_bar);
-        local_inter_measure(j) = obj.units{j}.pi * (obj.units{i}.activity*obj.units{i}.inter_bar + obj.units{sibling}.activity*obj.units{sibling}.inter_bar);
+        local_intra_measure(j) = obj.units{i}.activity*obj.units{i}.intra_bar + obj.units{sibling}.activity*obj.units{sibling}.intra_bar;
+        local_inter_measure(j) = obj.units{i}.activity*obj.units{i}.inter_bar + obj.units{sibling}.activity*obj.units{sibling}.inter_bar;
 
-        obj.units{i}.quality_measure(end+1) = sum(local_intra_measure) / sum(local_inter_measure);
+        % Quality measure of the set U_b and 1 unit replaced by its children - equation 18 
+        % Remove the empty zero fields from the array as "j" is not
+        % starting from index 1
+        % Alternativ: normalized_pi(normalized_pi > 0)' * (local_intra_measure(local_intra_measure > 0) ./ local_inter_measure(local_inter_measure > 0))
+        obj.units{i}.quality_measure(end+1) = sum(normalized_pi(normalized_pi > 0) .* (local_intra_measure(local_intra_measure > 0) ./ local_inter_measure(local_inter_measure > 0)));
     end
     % Quality measure of the set U_b equation 18
-    obj.quality_measure = sum(intra_measures_bar) / sum(inter_measures_bar);
+    obj.quality_measure = sum(normalized_pi(normalized_pi > 0) .* (intra_measures_bar(intra_measures_bar > 0) ./ inter_measures_bar(inter_measures_bar > 0) ));
     
     %% Split decision
     if obj.zeta == 0
@@ -170,6 +180,7 @@ function obj = update(obj)
         % than the current model, perform the split operation
         if obj.units{obj.candidates(unitToSplit)}.quality_measure(end) < obj.psi * obj.quality_measure
             obj = unit_split(obj, obj.candidates(unitToSplit)); 
+            % Set zeta to the initial value times number of unborn children
             obj.zeta = obj.zeta_init * length(obj.candidates);
         end
     else

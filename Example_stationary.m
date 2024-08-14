@@ -1,6 +1,6 @@
 %%%
-% H-NGPCA: Hierarchical Clustering of Data Streams with 
-% Adaptive Number of Clusters and Dimensionality
+% H-NGPCA: Hierarchical Clustering of Data Streams with Adaptive 
+% Number of Clusters and Dimensionality
 %%%
 
 %% 
@@ -8,7 +8,7 @@ clear variables
 close all
 addpath('hngpca', 'data');
 % Reproducability
-rng(2)
+rng(0)
 
 %% Create the H-NGPCA object
 % Parameters - Not case sensitive
@@ -20,7 +20,7 @@ rng(2)
 % "dimthreshold"      - [0,1]     - 0.99    - Defines the % of variance that has to be maintained
 % "protect"           - >=1       - 50      - Unit specific number of update cycles before the dimensionality can be updated
 % "zeta_init"         - >=1       - 100     - Initial value of number of update cycles between split operations
-hngpca = HNGPCA("psi", 0.92);
+hngpca = HNGPCA('psi', 0.95, "zeta_init", 50);
 
 %% Load data - The provided .mat files contain:
 % The example data set (S1) is taken from https://cs.joensuu.fi/sipu/datasets/
@@ -36,7 +36,7 @@ load('s1.mat','data','gt','label','eigenvalues','eigenvectors');
 
 % Init the root unit and the 2 unborn children. Optionally set number of
 % iterations
-hngpca = init_units(hngpca, data, 'iterations', 37500);
+hngpca = init_units(hngpca, data, 'iterations', 20000);
 
 % Train the hngpca network
 hngpca = fit_multiple(hngpca, data);

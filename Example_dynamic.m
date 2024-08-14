@@ -44,15 +44,14 @@ axis manual
 hold on
 hngpca.draw();
 hold off
-print(gcf,'-dpng','line_square.png')
 
 % Add the circle to the training data 
 % The iterations are increased as the data size increased
 % Zeta is increased to prevent splits during the readjustment
 figure
 rng(0)
-hngpca.iterations = 24000;
-hngpca.zeta_init = 220;
+hngpca.iterations = 22000;
+hngpca.zeta_init = 230;
 hngpca = fit_multiple(hngpca, data);
 scatter(data(:, 1), data(:, 2), 5, 'o', 'filled');
 axis equal
@@ -60,4 +59,15 @@ axis manual
 hold on
 hngpca.draw();
 hold off
-print(gcf,'-dpng','ring_line_square.png')
+
+% Plot learning rate of specific units that existed before the data
+% distribution change and after
+figure;
+ylabel("$\epsilon_j$", "Interpreter", "latex")
+xlabel("Data points", "Interpreter", "latex")
+xline(7500, "LineStyle",":")
+hold on
+for i = [1,2,3,5]
+    plot(hngpca.units{i}.lr_history)
+end
+legend('Dist. change t=7500','Unit 1', 'Unit 2', 'Unit 3', 'Unit 5')

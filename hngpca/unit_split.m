@@ -1,15 +1,14 @@
 function obj = unit_split(obj,winner_idx)
 
-% Remove new parent from candiate model
-if length(obj.units) == 3
-    new_units = [2,3];
-else
-    new_units = [winner_idx, winner_idx+1];
-end
+new_units = [winner_idx, winner_idx+1];
 
 for i = new_units
     % Child indicies for the parent unit
     obj.units{i}.child_idx = [length(obj.units) + 1, length(obj.units) + 2];
+    % Set the pi value according to the parents pi value and its own
+    % activity. This way both new developed units represent the correct share of
+    % the model
+    obj.units{i}.pi = obj.units{obj.units{i}.parent_idx}.pi * obj.units{i}.activity;
     
     % Initialize two new obj.units within the new parent unit
     for k = obj.units{i}.child_idx
@@ -41,13 +40,15 @@ for i = new_units
         obj.units{k}.l_bar = obj.units{i}.l_bar(1:2) / 1.1;
         obj.units{k}.gamma_bar = obj.units{k}.eta_bar(1:2) - obj.units{k}.l_bar(1:2);
         obj.units{k}.learningRate = 0.99;
+        obj.units{k}.lr_history = [0.99];
         % Inherit intra and inter 
         obj.units{k}.intra_bar = obj.units{i}.intra_bar;
         obj.units{k}.inter_bar = obj.units{i}.inter_bar; 
+        % Init quality measure, value is overwritten before usage so the
+        % value does not matter
         obj.units{k}.quality_measure = 0;
-        % Reset activities
-        obj.units{k}.pi = 1;
-        obj.units{k}.activity = 1;
+        % Both childs start with an activaion of 0.5, so that the sum is 1
+        obj.units{k}.activity = 0.5;
         % Inherit protect from parents
         obj.units{k}.protect = obj.protect;
         

@@ -17,7 +17,6 @@ classdef HNGPCA
         % Allocation of variables that are not subject to be set prior the training
         units                       % An array of local PCA units
         dataDimensionality          % Data dimensionality set to the dimensionality of input data
-        initialized                 % Bool variable to only initialize the model once
         data                        % Data
         candidates        = 2       % The index of the first initial unborn child unit   
         numberUnits                 % Defines the number of units to be initialized - Always 1 root and 2 children initially
@@ -26,7 +25,7 @@ classdef HNGPCA
         centroidIndex               % Validation: Centroid Index
         nmi                         % Validation: Normalized Mutual information
         y_pred                      % Array of labels that show which data point belongs to which cluster
-        ax                          % Plot handle             
+        ax                          % Plot handle   
     end
     
     methods
@@ -106,6 +105,7 @@ classdef HNGPCA
             obj.data = data;
             for i = 1 : obj.iterations
                 obj = update(obj);
+                obj = learningrate_history(obj);
             end
         end
         
@@ -163,6 +163,14 @@ classdef HNGPCA
             hold(obj.ax, "on")
             % Plot units
             obj = drawupdate(obj);
+        end
+        %-------
+        % Learningrate history
+        %-------
+        function obj = learningrate_history(obj)
+            for i = 1 : length(obj.units)
+                obj.units{i}.lr_history(end+1) = obj.units{i}.learningRate;
+            end
         end
 
     end

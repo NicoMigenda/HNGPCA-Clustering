@@ -60,7 +60,6 @@ function obj = init(obj)
         % Initial values doesnt matter
         obj.units{k}.intra_bar = 1;
         obj.units{k}.inter_bar = 1;
-        obj.units{k}.quality= 1;
         obj.units{k}.quality_measure = 0;
     
         % Unit output (activation) for input x_c
@@ -71,9 +70,9 @@ function obj = init(obj)
         obj.units{k}.protect = obj.protect;
     
         % Unit activity (pi) between all units of U_b 
-        obj.units{k}.pi = 1;
+        obj.units{k}.pi = 0.5;
         % Unit activity (a) between the unit and its sibling unit
-        obj.units{k}.activity = 1;
+        obj.units{k}.activity = 0.5;
     
         % Unit matching measure
         obj.units{k}.eta_bar = obj.lambda^2 * ones(obj.units{k}.m, 1);
@@ -82,6 +81,7 @@ function obj = init(obj)
     
         % Learning rate 
         obj.units{k}.learningRate = obj.learningRate;
+        obj.units{k}.lr_history = [obj.learningRate];
 
         % Unit distance, updated according to equation 4 or 5
         obj.units{k}.distance = 0;
