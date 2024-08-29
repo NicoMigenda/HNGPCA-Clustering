@@ -28,7 +28,7 @@ for k = units_to_plot
     sub_matrix = obj.units{k}.weight(1:2,:) * (obj.units{k}.eigenvalue .* obj.units{k}.weight(1:2,:)');
     if obj.dataDimensionality ~= 2
          sub_matrix = sub_matrix + ...
-            obj.units{k}.sigma/(obj.dataDimensionality - obj.units{k}.m) * ( eye(2) - obj.units{k}.weight(1:2,:) * obj.units{k}.weight(1:2,:)' );
+            obj.units{k}.sigma_sqr/(obj.dataDimensionality - obj.units{k}.m) * ( eye(2) - obj.units{k}.weight(1:2,:) * obj.units{k}.weight(1:2,:)' );
     end
     % determine the eigenvectors and eigenvalues of this submatrix (dimension 2), 
     % use these to draw the projected ellipse (without drawing them as axes)

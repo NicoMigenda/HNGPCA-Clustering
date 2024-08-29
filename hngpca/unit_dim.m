@@ -31,9 +31,9 @@ function unit = unit_dim(unit, dimThreshold, dataDimensionality, protect)
         end
         unit.eigenvalue = [unit.eigenvalue; approximatedEigenvalues(1:addedDim)];
         unit.m = unit.m + addedDim;
-        unit.y_bar = [unit.y_bar; repmat(unit.y_bar(end),addedDim,1)];
+        unit.eta_bar = [unit.eta_bar; repmat(unit.eta_bar(end),addedDim,1)];
         unit.l_bar = [unit.l_bar; repmat(unit.l_bar(end),addedDim,1)]; 
-        unit.mt = [unit.mt;repmat(unit.mt(end),addedDim,1)]; 
+        unit.gamma_bar = [unit.gamma_bar;repmat(unit.gamma_bar(end),addedDim,1)]; 
         unit.sigma_sqr = unit.sigma_sqr - addedDim * unit.sigma_sqr / (dataDimensionality - unit.m);
         unit.protect = protect;
     elseif newDim < unit.m
@@ -42,9 +42,9 @@ function unit = unit_dim(unit, dimThreshold, dataDimensionality, protect)
         unit.m = newDim;
         unit.weight(:,unit.m+1:end) = [];      
         unit.eigenvalue(unit.m+1:end) = [];   
-        unit.y_bar = repmat(unit.y_bar(1:unit.m), 1);
+        unit.eta_bar = repmat(unit.eta_bar(1:unit.m), 1);
         unit.l_bar = repmat(unit.l_bar(1:unit.m), 1);
-        unit.mt = repmat(unit.mt(1:unit.m), 1);
+        unit.gamma_bar = repmat(unit.gamma_bar(1:unit.m), 1);
         unit.sigma_sqr = unit.sigma_sqr + reducedDim * unit.sigma_sqr / (dataDimensionality - unit.m);
         unit.protect = protect;
     end

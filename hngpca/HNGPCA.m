@@ -63,6 +63,7 @@ classdef HNGPCA
         % Init Units
         %-------
         function obj = init_units(obj, data, varargin)
+            % Check if optional parameters are provided
             for i = 1:2:nargin-3
                 property_name = varargin{i};
                 property_value = varargin{i+1};
@@ -97,7 +98,7 @@ classdef HNGPCA
         %-------
         function obj = fit_multiple(obj, data)
             if size(data,1) < 2
-                warning("We suggest fit_single when training on single data point")
+                warning("We suggest fit_single when training on a single data point")
             end
             if size(data,2) < 2
                 error('Invalid input size. Data dimensionality lesser than two.')
@@ -164,6 +165,7 @@ classdef HNGPCA
             % Plot units
             obj = drawupdate(obj);
         end
+        
         %-------
         % Learningrate history
         %-------

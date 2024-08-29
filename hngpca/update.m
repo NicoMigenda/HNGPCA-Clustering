@@ -47,13 +47,14 @@ function obj = update(obj)
         % Update unit PCA estimates
         obj.units{k} = eforrlsa(obj.units{k}); 
           
-        % Update residual variance/spread 
+        % Update residual variance 
         if(obj.dataDimensionality ~= obj.units{k}.m)
-            obj.units{k}.sigma = obj.units{k}.sigma_sqr + obj.units{k}.learningRate * (obj.units{k}.x_c' * obj.units{k}.x_c - obj.units{k}.y' * obj.units{k}.y - obj.units{k}.sigma_sqr);
-            obj.units{k}.totalVariance = sum(obj.units{k}.eigenvalue) + obj.units{k}.sigma_sqrt;
+            obj.units{k}.sigma_sqr = obj.units{k}.sigma_sqr + obj.units{k}.learningRate * (obj.units{k}.x_c' * obj.units{k}.x_c - obj.units{k}.y' * obj.units{k}.y - obj.units{k}.sigma_sqr);
+            obj.units{k}.totalVariance = sum(obj.units{k}.eigenvalue) + obj.units{k}.sigma_sqr;
         end
 
         % Update unit dimensionality, only when data dimensionality is > 2
+        % According to algorithm 2
          if obj.dataDimensionality > 2 
              if obj.units{k}.protect == 0
                 obj.units{k} = unit_dim(obj.units{k}, obj.dimThreshold, obj.dataDimensionality, obj.protect);
@@ -67,14 +68,14 @@ function obj = update(obj)
             break;
         end
         
-        % Update the activity between the winner unit and its sibling
+        % Update the assignment values between the winner unit and its sibling
         % equation 8+9
-        activity_winner = obj.units{k}.activity * (1 - obj.mu) + obj.mu;
-        activity_loser = obj.units{obj.units{k}.sibling}.activity * (1 - obj.mu);
+        a_winner = obj.units{k}.a * (1 - obj.mu) + obj.mu;
+        a_loser = obj.units{obj.units{k}.sibling}.a * (1 - obj.mu);
         
-        % Normalize activities
-        obj.units{k}.activity = activity_winner / (activity_winner + activity_loser);
-        obj.units{obj.units{k}.sibling}.activity = activity_loser / (activity_winner + activity_loser);
+        % Normalize assignment values equation 10
+        obj.units{k}.a = a_winner / (a_winner + a_loser);
+        obj.units{obj.units{k}.sibling}.a = a_loser / (a_winner + a_loser);
 
         % Continue with the parent in next loop
         k = obj.units{k}.parent_idx;
@@ -84,10 +85,9 @@ function obj = update(obj)
 % THIRDS PART OF MAIN LOOP: UNIT SIMILARITY MEASURES                      %
 %-------------------------------------------------------------------------%
     % Update the distances for all units
-    % Intra for winner units and inter for looser units - equation 16 + 17
-    % Further, update the tree wide activities (pi), in contrast to
-    % the only locally used activities
-    % Pi normalization happes later to save computational time
+    % Intra for winner units and inter for looser units - equation 15 + 16  
+    % Further, update the tree wide activities (pi) - equation 12 + 13
+    % Pi normalization happes later to save computational time - equation 14
     for i = obj.candidates
         k = obj.units{i}.parent_idx;
         if i == winner_unit || i+1 == winner_unit
@@ -155,16 +155,16 @@ function obj = update(obj)
 
         % Replace the j-th parent by its two unborn child units. equation
         % 18
-        local_intra_measure(j) = obj.units{i}.activity*obj.units{i}.intra_bar + obj.units{sibling}.activity*obj.units{sibling}.intra_bar;
-        local_inter_measure(j) = obj.units{i}.activity*obj.units{i}.inter_bar + obj.units{sibling}.activity*obj.units{sibling}.inter_bar;
+        local_intra_measure(j) = obj.units{i}.a*obj.units{i}.intra_bar + obj.units{sibling}.a*obj.units{sibling}.intra_bar;
+        local_inter_measure(j) = obj.units{i}.a*obj.units{i}.inter_bar + obj.units{sibling}.a*obj.units{sibling}.inter_bar;
 
-        % Quality measure of the set U_b and 1 unit replaced by its children - equation 18 
+        % Quality measure of the set U_b and 1 unit replaced by its children - equation 17 
         % Remove the empty zero fields from the array as "j" is not
         % starting from index 1
         % Alternativ: normalized_pi(normalized_pi > 0)' * (local_intra_measure(local_intra_measure > 0) ./ local_inter_measure(local_inter_measure > 0))
         obj.units{i}.quality_measure(end+1) = sum(normalized_pi(normalized_pi > 0) .* (local_intra_measure(local_intra_measure > 0) ./ local_inter_measure(local_inter_measure > 0)));
     end
-    % Quality measure of the set U_b equation 18
+    % Quality measure of the set U_b equation 17
     obj.quality_measure = sum(normalized_pi(normalized_pi > 0) .* (intra_measures_bar(intra_measures_bar > 0) ./ inter_measures_bar(inter_measures_bar > 0) ));
     
     %% Split decision

@@ -71,8 +71,8 @@ function obj = init(obj)
     
         % Unit activity (pi) between all units of U_b 
         obj.units{k}.pi = 0.5;
-        % Unit activity (a) between the unit and its sibling unit
-        obj.units{k}.activity = 0.5;
+        % Unit assignment value (a) between a unit and its sibling unit
+        obj.units{k}.a = 0.5;
     
         % Unit matching measure
         obj.units{k}.eta_bar = obj.lambda^2 * ones(obj.units{k}.m, 1);

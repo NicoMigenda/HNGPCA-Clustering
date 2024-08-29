@@ -48,7 +48,7 @@ for i = new_units
         % value does not matter
         obj.units{k}.quality_measure = 0;
         % Both childs start with an activaion of 0.5, so that the sum is 1
-        obj.units{k}.activity = 0.5;
+        obj.units{k}.a = 0.5;
         % Inherit protect from parents
         obj.units{k}.protect = obj.protect;
         
