@@ -6,9 +6,9 @@ for i = new_units
     % Child indicies for the parent unit
     obj.units{i}.child_idx = [length(obj.units) + 1, length(obj.units) + 2];
     % Set the pi value according to the parents pi value and its own
-    % activity. This way both new developed units represent the correct share of
+    % assignment value. This way both new developed units represent the correct share of
     % the model
-    obj.units{i}.pi = obj.units{obj.units{i}.parent_idx}.pi * obj.units{i}.activity;
+    obj.units{i}.pi = obj.units{obj.units{i}.parent_idx}.pi * obj.units{i}.a;
     
     % Initialize two new obj.units within the new parent unit
     for k = obj.units{i}.child_idx
