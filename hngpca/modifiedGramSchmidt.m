@@ -14,11 +14,12 @@ for j = 1 : max_iter
     
     % Apply Modified Gram-Schmidt process
     for i = 1:m
-        % Orthogonalize the new dimension with respect to the existing vectors
+        % Orthogonalize the new dimension with respect to the existing
+        % vectors - equation 18
         new_dim = new_dim - A(:, i) * (A(:, i)' * new_dim);
     end
     
-    % Normalize the new dimension to make it unit length
+    % Normalize the new dimension to make it unit length - equation 19
     new_dim = new_dim / norm(new_dim);
     
     % Check for convergence

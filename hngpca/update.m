@@ -115,10 +115,10 @@ function obj = update(obj)
 % Fourth PART OF MAIN LOOP: UNIT Split                                    %
 %-------------------------------------------------------------------------%
     % Intra and inter measures that will be filled with the intra and inter
-    % values of the lowest fully developed unit of each branch. These
-    % values are then used to obtain the current Quality measure of the
+    % values of the outermost developed unit of each branch. These
+    % values are then used to obtain the current quality measure of the
     % network and to replace units one by one with their respective
-    % children
+    % unborn children
     intra_measures_bar = zeros(length(obj.candidates),1);
     inter_measures_bar = zeros(length(obj.candidates),1);
     pi = zeros(length(obj.candidates),1);
@@ -153,8 +153,7 @@ function obj = update(obj)
         % Sibling index
         sibling = obj.units{i}.sibling;
 
-        % Replace the j-th parent by its two unborn child units. equation
-        % 18
+        % Replace the j-th parent by its two unborn child units
         local_intra_measure(j) = obj.units{i}.a*obj.units{i}.intra_bar + obj.units{sibling}.a*obj.units{sibling}.intra_bar;
         local_inter_measure(j) = obj.units{i}.a*obj.units{i}.inter_bar + obj.units{sibling}.a*obj.units{sibling}.inter_bar;
 
@@ -169,7 +168,7 @@ function obj = update(obj)
     
     %% Split decision
     if obj.zeta == 0
-        % Save all quality measures (equation 18) in an array
+        % Save all quality measures in an array
         for i = obj.candidates
             quality_measures(i) = obj.units{i}.quality_measure(end);
         end

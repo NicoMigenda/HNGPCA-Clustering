@@ -18,7 +18,8 @@ classdef HNGPCA
         units                       % An array of local PCA units
         dataDimensionality          % Data dimensionality set to the dimensionality of input data
         data                        % Data
-        candidates        = 2       % The index of the first initial unborn child unit   
+        candidates        = 2       % The index of the first initial unborn child unit. 
+                                    % Later this is filled to contain a list of unborn units  
         numberUnits                 % Defines the number of units to be initialized - Always 1 root and 2 children initially
         zeta                        % Number of update cycles between split operations
         quality_measure             % Quality measure of the set U_b  

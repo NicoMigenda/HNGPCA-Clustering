@@ -56,8 +56,6 @@ Within the download you'll find the following directories and files:
         |-- unit_learningrate.m
         |-- unit_split.m
         `-- update.m
-
-
   ```
 </details>
 
